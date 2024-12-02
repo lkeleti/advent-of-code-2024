@@ -25,19 +25,23 @@ public class Service {
     public long partOne() {
         int counter = 0;
         for (List<Integer> numbers : reports) {
-            LevelType defType = checkLevelType(numbers.get(0), numbers.get(1));
-            boolean safe = true;
-            for (int i = 1; i <numbers.size();i++) {
-                if (!(checkLevelType(numbers.get(i-1), numbers.get(i)) == defType &&
-                        checkDistance(numbers.get(i-1), numbers.get(i)))) {
-                    safe = false;
-                }
-            }
-            if (safe) {
+            if (isSafe(numbers)) {
                 counter++;
             }
         }
         return counter;
+    }
+
+    private boolean isSafe(List<Integer> numbers) {
+        LevelType defType = checkLevelType(numbers.get(0), numbers.get(1));
+        boolean safe = true;
+        for (int i = 1; i < numbers.size(); i++) {
+            if (!(checkLevelType(numbers.get(i-1), numbers.get(i)) == defType &&
+                    checkDistance(numbers.get(i-1), numbers.get(i)))) {
+                safe = false;
+            }
+        }
+        return safe;
     }
 
     private boolean checkDistance(Integer num1, Integer num2) {
@@ -52,6 +56,21 @@ public class Service {
     }
 
     public int partTwo() {
-        return 0;
+        int counter = 0;
+        for (List<Integer> numbers : reports) {
+            if (isSafe(numbers)) {
+                counter++;
+            } else {
+                for (int i = 0; i < numbers.size(); i++) {
+                    List<Integer> reducedList = new ArrayList<>(numbers);
+                    reducedList.remove(i);
+                    if (isSafe(reducedList)) {
+                        counter++;
+                        break;
+                    }
+                }
+            }
+        }
+        return counter;
     }
 }
