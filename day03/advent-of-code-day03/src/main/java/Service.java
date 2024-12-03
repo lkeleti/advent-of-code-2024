@@ -18,11 +18,14 @@ public class Service {
         }
     }
     public long partOne() {
-        String regex = "mul\\(\\d{1,3},\\d{1,3}\\)";
-
-        Pattern pattern = Pattern.compile(regex);
         String text = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))";
-        Matcher matcher = pattern.matcher(memoryDump);
+        return getTotal(memoryDump);
+    }
+
+    private Long getTotal(String text) {
+        String regex = "mul\\(\\d{1,3},\\d{1,3}\\)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(text);
         Long total = 0L;
         while (matcher.find()) {
             String mul = matcher.group();
@@ -36,7 +39,26 @@ public class Service {
         }
         return total;
     }
-    public int partTwo() {
-        return 0;
+
+    public long partTwo() {
+        String text = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
+        text = getString(memoryDump);
+        return getTotal(text);
+        //120288884 high
+    }
+
+    private static String getString(String text) {
+        int start = 0;
+        int end = 0;
+        while (start != -1 && end != -1) {
+            start = text.indexOf("don't()");
+            if (start != -1) {
+                end = text.indexOf("do()", start);
+                String temp = text.substring(0, start);
+                temp += text.substring(end+4);
+                text = temp;
+            }
+        }
+        return text;
     }
 }
