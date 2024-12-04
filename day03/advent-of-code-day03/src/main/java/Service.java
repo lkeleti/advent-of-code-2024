@@ -44,18 +44,19 @@ public class Service {
         String text = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))";
         text = getString(memoryDump);
         return getTotal(text);
-        //120288884 high
     }
 
     private static String getString(String text) {
         int start = 0;
-        int end = 0;
-        while (start != -1 && end != -1) {
+        int end;
+        while (start != -1) {
             start = text.indexOf("don't()");
             if (start != -1) {
-                end = text.indexOf("do()", start);
                 String temp = text.substring(0, start);
-                temp += text.substring(end+4);
+                end = text.indexOf("do()", start);
+                if (end != -1) {
+                    temp += text.substring(end + 4);
+                }
                 text = temp;
             }
         }
