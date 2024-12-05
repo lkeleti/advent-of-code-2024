@@ -2,10 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Service {
     public final Map<Integer, List<Integer>> rulesBefore = new TreeMap<>();
@@ -30,13 +27,15 @@ public class Service {
                     if (rulesBefore.containsKey(before)) {
                         rulesBefore.get(before).add(after);
                     } else {
-                        rulesBefore.put(before,new ArrayList<>(after));
+                        rulesBefore.put(before,new ArrayList<>());
+                        rulesBefore.get(before).add(after);
                     }
 
                     if (rulesAfter.containsKey(after)) {
                         rulesAfter.get(after).add(before);
                     } else {
                         rulesAfter.put(after,new ArrayList<>(before));
+                        rulesAfter.get(after).add(before);
                     }
                 } else {
                     String[] datas = line.split(",");
@@ -52,9 +51,53 @@ public class Service {
         }
     }
     public long partOne() {
-        return 0;
+        int total = 0;
+        for (List<Integer> page: pages) {
+            total += getMiddle(page);
+        }
+        return total;
     }
-    public int partTwo() {
-        return 0;
+
+    private int getMiddle(List<Integer> page) {
+        for (int i = 0; i < page.size() - 1; i++) {
+            for (int j = i+1; j < page.size(); j++) {
+                int key = page.get(i);
+                int nextNumber = page.get(j);
+                if (rulesBefore.containsKey(key)) {
+                    if (!rulesBefore.get(key).contains(nextNumber)) {
+                        return 0;
+                    }
+                } else return 0;
+            }
+        }
+        return page.get(page.size()/2);
+    }
+    private int correctOrder(List<Integer> page) {
+        int res = page.get(page.size()/2);
+        for (int i = 0; i < page.size() - 1; i++) {
+            for (int j = i+1; j < page.size(); j++) {
+                int key = page.get(i);
+                int nextNumber = page.get(j);
+                if (rulesBefore.containsKey(key)) {
+                    if (!rulesBefore.get(key).contains(nextNumber)) {
+                        Collections.swap(page,i,j);
+                        res = 0;
+                    }
+                } else {
+                    Collections.swap(page,i,j);
+                    res = 0;
+                }
+            }
+        }
+        return res;
+    }
+    public long partTwo() {
+        ListIterator<List<Integer>> iter = pages.listIterator();
+        while(iter.hasNext()){
+            if (correctOrder(iter.next()) != 0) {
+                iter.remove();
+            }
+        }
+        return partOne();
     }
 }
