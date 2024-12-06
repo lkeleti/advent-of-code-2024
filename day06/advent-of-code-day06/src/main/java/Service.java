@@ -46,7 +46,15 @@ public class Service {
         Directions defDirection = Directions.UP;
         int counter = 1;
         while (!(defX < 0 || defX >= maxCord.getPosX() || defY < 0 || defY >= maxCord.getPosY())) {
-            board.get(defY).set(defX, 'X');
+            if (board.get(defY).get(defX) == '|' || board.get(defY).get(defX) == '|') {
+                board.get(defY).set(defX, '+');
+            } else {
+                if (defDirection == Directions.LEFT || defDirection == Directions.RIGHT) {
+                    board.get(defY).set(defX, '-');
+                } else {
+                    board.get(defY).set(defX, '|');
+                }
+            }
             int nextX = defX + defDirection.getDirectionValue().getPosX();
             int nextY = defY + defDirection.getDirectionValue().getPosY();
             if (!(nextX < 0 ||
@@ -70,7 +78,9 @@ public class Service {
         int counter = 0;
         for (int i = 0; i < maxCord.getPosX(); i++) {
             for (int j = 0; j < maxCord.getPosY(); j++) {
-                if (board.get(j).get(i) == 'X') {
+                if (board.get(j).get(i) == '-' ||
+                        board.get(j).get(i) == '|' ||
+                        board.get(j).get(i) == '+') {
                     counter++;
                 }
             }
