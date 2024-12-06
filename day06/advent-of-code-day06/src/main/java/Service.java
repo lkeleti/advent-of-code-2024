@@ -7,10 +7,9 @@ import java.util.List;
 
 public class Service {
     public final List<List<Character>> board = new ArrayList<>();
-    public int startX;
-    public int startY;
-    public int maxX;
-    public int maxY;
+    public Cord startCord = new Cord(-1,-1);
+    public Cord maxCord = new Cord(-1,-1);
+
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
             String line;
@@ -28,41 +27,57 @@ public class Service {
     }
 
     private void findStartMax() {
-        maxX = board.size();
-        maxY = board.getFirst().size();
-        for (int i = 0; i < maxX;i++) {
-            for (int j = 0; j < maxY; j++) {
+        maxCord.setPosX(board.size());
+        maxCord.setPosY(board.getFirst().size());
+        for (int i = 0; i < maxCord.getPosX(); i++) {
+            for (int j = 0; j < maxCord.getPosY(); j++) {
                 if (board.get(j).get(i) == '^') {
-                    startX = i;
-                    startY = j;
+                    startCord.setPosX(i);
+                    startCord.setPosY(j);
                     break;
                 }
             }
         }
     }
 
-    public long partOne() {
-        int defX = startX;
-        int defY = startY;
+    public int partOne() {
+        int defX = startCord.getPosX();
+        int defY = startCord.getPosY();
+        Directions defDirection = Directions.UP;
         int counter = 1;
-        while (!(defX < 0 || defX > maxX || defY < 0 || defY > startY)) {
-            if (defY-1 > -1) {
-                if (board.get(defY - 1).get(defX) != '#') {
-                    defY -= 1;
-                } else {
-                    if (defX+1 < maxX) {
-                        defX += 1;
-                    } else {
-                        break;
-                    }
+        while (!(defX < 0 || defX >= maxCord.getPosX() || defY < 0 || defY >= maxCord.getPosY())) {
+            board.get(defY).set(defX, 'X');
+            int nextX = defX + defDirection.getDirectionValue().getPosX();
+            int nextY = defY + defDirection.getDirectionValue().getPosY();
+            if (!(nextX < 0 ||
+                    nextX >= maxCord.getPosX() ||
+                    nextY < 0 ||
+                    nextY >= maxCord.getPosY())) {
+                if (board.get(nextY).get(nextX) == '#') {
+                    defDirection = defDirection.getNextDirection(defDirection);
+                    nextX = defX + defDirection.getDirectionValue().getPosX();
+                    nextY = defY + defDirection.getDirectionValue().getPosY();
                 }
-            } else {
-                break;
             }
+            defX = nextX;
+            defY = nextY;
             counter++;
+        }
+        return countX();
+    }
+
+    private int countX() {
+        int counter = 0;
+        for (int i = 0; i < maxCord.getPosX(); i++) {
+            for (int j = 0; j < maxCord.getPosY(); j++) {
+                if (board.get(j).get(i) == 'X') {
+                    counter++;
+                }
+            }
         }
         return counter;
     }
+
     public int partTwo() {
         return 0;
     }
