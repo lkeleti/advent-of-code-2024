@@ -44,12 +44,20 @@ public class Service {
     public long partOne() {
         int defX = startX;
         int defY = startY;
-        int counter = 0;
+        int counter = 1;
         while (!(defX < 0 || defX > maxX || defY < 0 || defY > startY)) {
-            if (board.get(defY-1).get(defX) != '#') {
-                defY -=1;
+            if (defY-1 > -1) {
+                if (board.get(defY - 1).get(defX) != '#') {
+                    defY -= 1;
+                } else {
+                    if (defX+1 < maxX) {
+                        defX += 1;
+                    } else {
+                        break;
+                    }
+                }
             } else {
-                defX += 1;
+                break;
             }
             counter++;
         }
