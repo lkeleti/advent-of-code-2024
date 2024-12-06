@@ -7,8 +7,8 @@ import java.util.List;
 
 public class Service {
     public final List<List<Character>> board = new ArrayList<>();
-    public Cord startCord = new Cord(-1,-1);
-    public Cord maxCord = new Cord(-1,-1);
+    public final Cord startCord = new Cord(-1,-1);
+    public final Cord maxCord = new Cord(-1,-1);
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -41,20 +41,19 @@ public class Service {
     }
 
     public int partOne() {
+        soldPOne(board);
+        return countX(board);
+    }
+
+    private boolean soldPOne(List<List<Character>> board) {
+        List<CordDir> visited = new ArrayList<>();
         int defX = startCord.getPosX();
         int defY = startCord.getPosY();
         Directions defDirection = Directions.UP;
-        int counter = 1;
         while (!(defX < 0 || defX >= maxCord.getPosX() || defY < 0 || defY >= maxCord.getPosY())) {
-            if (board.get(defY).get(defX) == '-' || board.get(defY).get(defX) == '|') {
-                board.get(defY).set(defX, '+');
-            } else {
-                if (defDirection == Directions.LEFT || defDirection == Directions.RIGHT) {
-                    board.get(defY).set(defX, '-');
-                } else {
-                    board.get(defY).set(defX, '|');
-                }
-            }
+            board.get(defY).set(defX, 'X');
+            visited.add(new CordDir(new Cord(defX,defY),defDirection));
+
             int nextX = defX + defDirection.getDirectionValue().getPosX();
             int nextY = defY + defDirection.getDirectionValue().getPosY();
             if (!(nextX < 0 ||
@@ -65,24 +64,24 @@ public class Service {
                     defDirection = defDirection.getNextDirection(defDirection);
                     nextX = defX + defDirection.getDirectionValue().getPosX();
                     nextY = defY + defDirection.getDirectionValue().getPosY();
-                    board.get(defY).set(defX, '+');
                 }
+            }
+            CordDir nextCordDir = new CordDir(new Cord(nextX, nextY), defDirection);
+            if (visited.contains(nextCordDir)) {
+                return true;
             }
             defX = nextX;
             defY = nextY;
-            counter++;
         }
-        return countX();
+        return false;
     }
 
-    private int countX() {
+    private int countX(List<List<Character>> board) {
         int counter = 0;
         String row = "";
         for (int i = 0; i < maxCord.getPosX(); i++) {
             for (int j = 0; j < maxCord.getPosY(); j++) {
-                if (board.get(j).get(i) == '-' ||
-                        board.get(j).get(i) == '|' ||
-                        board.get(j).get(i) == '+') {
+                if (board.get(j).get(i) == 'X') {
                     counter++;
                 }
                 row += board.get(i).get(j);
@@ -94,6 +93,19 @@ public class Service {
     }
 
     public int partTwo() {
-        return 0;
+        int counter = 0;
+        for (int i = 0; i < maxCord.getPosX(); i++) {
+            for (int j = 0; j < maxCord.getPosY(); j++) {
+                if (board.get(j).get(i) != '#' && !(j == startCord.getPosY() && i == startCord.getPosX())) {
+                    board.get(j).set(i, '#');
+                    if (soldPOne(board)) {
+                        counter++;
+                    }
+                    board.get(j).set(i, '.');
+                }
+            }
+        }
+        return counter - 1;
+        //7454 high
     }
 }
