@@ -41,8 +41,21 @@ public class Service {
     }
 
     public int partOne() {
-        soldPOne(board);
-        return countX(board);
+        List<List<Character>> tmpBoard = copYBoard();
+        soldPOne(tmpBoard);
+        return countX(tmpBoard);
+    }
+
+    private List<List<Character>> copYBoard() {
+        List<List<Character>> tmpBoard = new ArrayList<>();
+        for (List<Character> row : board) {
+            List<Character> newRow = new ArrayList<>();
+            for (char c: row) {
+                newRow.add(c);
+            }
+            tmpBoard.add(newRow);
+        }
+        return tmpBoard;
     }
 
     private boolean soldPOne(List<List<Character>> board) {
@@ -96,16 +109,20 @@ public class Service {
         int counter = 0;
         for (int i = 0; i < maxCord.getPosX(); i++) {
             for (int j = 0; j < maxCord.getPosY(); j++) {
-                if (board.get(j).get(i) != '#' && !(j == startCord.getPosY() && i == startCord.getPosX())) {
-                    board.get(j).set(i, '#');
-                    if (soldPOne(board)) {
+                List<List<Character>> tmpBoard = copYBoard();
+                if (tmpBoard.get(j).get(i) != '#' && !(j == startCord.getPosY() && i == startCord.getPosX())) {
+                    char tmp = tmpBoard.get(j).get(i);
+                    tmpBoard.get(j).set(i, '#');
+                    if (soldPOne(tmpBoard)) {
                         counter++;
+                        //System.out.println(i+" " +j);
                     }
-                    board.get(j).set(i, '.');
+                    tmpBoard.get(j).set(i, tmp);
                 }
             }
         }
-        return counter - 1;
+        return counter;
+        //1626 low
         //7454 high
     }
 }
