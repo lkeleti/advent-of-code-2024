@@ -36,4 +36,12 @@ public class Cord {
     public int hashCode() {
         return Objects.hash(getPosX(), getPosY());
     }
+
+    @Override
+    public String toString() {
+        return "Cord{" +
+                "posX=" + posX +
+                ", posY=" + posY +
+                '}';
+    }
 }
