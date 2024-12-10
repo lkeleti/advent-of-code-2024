@@ -8,7 +8,8 @@ public class Service {
     public String diskMap;
     public List<DiskBlock> blocks = new ArrayList<>();
     public int maxId = -1;
-    public final Map<Integer, List<Integer>> fileDesc = new HashMap();
+    public final Map<Integer, List<Integer>> fileDesc = new TreeMap<>();
+    public final Map<Integer, Integer> emptyDesc = new TreeMap<>();
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -81,6 +82,31 @@ public class Service {
     }
 
     public int partTwo() {
+        blocks.clear();
+        fileDesc.clear();
+        createDisk();
+        findFreeSpace();
         return 0;
+    }
+
+    private void findFreeSpace() {
+        boolean first = true;
+        int start = -1;
+        int size = 0;
+        for (int i=0; i < blocks.size();i++) {
+            if (blocks.get(i).getBlockType() == BlockType.EMPTY) {
+                if (first) {
+                    start = i;
+                    first = false;
+                }
+                size++;
+            } else {
+                if (!first) {
+                    emptyDesc.put(start,size);
+                    first = true;
+                    size = 0;
+                }
+            }
+        }
     }
 }
