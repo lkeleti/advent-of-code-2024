@@ -76,6 +76,43 @@ public class Service {
     }
 
     public int partTwo() {
-        return 0;
+        List<Cord> starts = new ArrayList<>();
+        findStarts(starts);
+        int count = 0;
+        for (Cord start: starts) {
+            count += dfs2(start);
+        }
+        return count;
+    }
+
+    private int dfs2(Cord start) {
+        Map<Cord, Integer> seen = new HashMap<>();
+        Queue<Cord> queue = new ArrayDeque<>();
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            Cord defCord = queue.poll();
+            int defValue = board.get(defCord.getPosX()).get(defCord.getPosY());
+            if (defValue == 9) {
+                if (!seen.containsKey(defCord)) {
+                    seen.put(defCord, 1);
+                } else {
+                    seen.put(defCord, seen.get(defCord) + 1);
+                }
+            }
+            for (Cord nextStep : directions) {
+                Cord nextCord = new Cord(defCord.getPosX() + nextStep.getPosX(), defCord.getPosY() + nextStep.getPosY());
+                if (!(nextCord.getPosX() < 0 || nextCord.getPosY() < 0 || nextCord.getPosX() >= maxX || nextCord.getPosY() >= maxY)) {
+                    int nextValue = board.get(nextCord.getPosX()).get(nextCord.getPosY());
+                    if (defValue + 1 == nextValue) {
+                        queue.add(nextCord);
+                    }
+                }
+            }
+        }
+
+        return seen.values().stream()
+                .mapToInt(value -> value)
+                .sum();
     }
 }
