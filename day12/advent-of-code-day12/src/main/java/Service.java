@@ -13,6 +13,11 @@ public class Service {
     private final Cord left = new Cord(-1,0);
     private final Cord right = new Cord(1,0);
     private final List<Cord> directions = List.of(up, down, left, right);
+    private final Cord leftUpCorner = new Cord(-0.5,-0.5);
+    private final Cord rightUpCorner = new Cord(0.5, -0.5);
+    private final Cord rightDownCorner = new Cord(0.5,0.5);
+    private final Cord leftDownCorner = new Cord(-0.5,0.5);
+    private final List<Cord> directionsCorner = List.of(leftUpCorner, rightUpCorner, rightDownCorner, leftDownCorner);
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -67,7 +72,7 @@ public class Service {
                         defCord.getPosY() < 0 ||
                         defCord.getPosX() >= maxX ||
                         defCord.getPosY() >= maxY)){
-                    char defValue = board.get(defCord.getPosX()).get(defCord.getPosY());
+                    char defValue = board.get((int)defCord.getPosX()).get((int)defCord.getPosY());
                     if (startValue == defValue && !region.contains(defCord)) {
                             region.add(defCord);
                             q.add(defCord);
@@ -100,7 +105,50 @@ public class Service {
         }
         return corners;
     }
+
+    private int calcCorners(List<Cord> region) {
+        Set<Cord> cornerCandidates = new HashSet<>();
+        for (Cord startCord: region) {
+            for (Cord nextStep: directionsCorner) {
+                Cord nextCord = new Cord(startCord.getPosX() + nextStep.getPosX(), startCord.getPosY() + nextStep.getPosY());
+                cornerCandidates.add(nextCord);
+            }
+        }
+
+        int cornerCount = 0;
+        for (Cord corner: cornerCandidates) {
+            List<Boolean> config = new ArrayList<>();
+            for (Cord nextStep: directionsCorner) {
+                Cord nextCord = new Cord(corner.getPosX() + nextStep.getPosX(), corner.getPosY() + nextStep.getPosY());
+                config.add(region.contains(nextCord));
+            }
+            int number = config.stream()
+                    .mapToInt(value -> (value) ? 1 : 0)
+                    .sum();
+            if (number == 1) {
+                cornerCount +=1;
+            } else if (number == 2) {
+                if ((config.get(0) && !config.get(1) && config.get(2) && !config.get(3)) ||
+                        (!config.get(0) && config.get(1) && !config.get(2) && config.get(3))) {
+                    cornerCount += 2;
+                }
+            } else if (number == 3) {
+                cornerCount += 1;
+            }
+        }
+        return cornerCount;
+    }
+
     public int partTwo() {
-        return 0;
+        List<List<Cord>> regions = dfs();
+        return calcTotalPriceByCorners(regions);
+    }
+
+    private int calcTotalPriceByCorners(List<List<Cord>> regions) {
+        int total = 0;
+        for (List<Cord> region: regions) {
+            total += (region.size() * calcCorners(region));
+        }
+        return total;
     }
 }

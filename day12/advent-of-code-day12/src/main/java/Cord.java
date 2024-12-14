@@ -1,27 +1,27 @@
 import java.util.Objects;
 
 public class Cord {
-    private int posX;
-    private int posY;
+    private double posX;
+    private double posY;
 
-    public Cord(int posX, int posY) {
+    public Cord(double posX, double posY) {
         this.posX = posX;
         this.posY = posY;
     }
 
-    public int getPosX() {
+    public double getPosX() {
         return posX;
     }
 
-    public void setPosX(int posX) {
+    public void setPosX(double posX) {
         this.posX = posX;
     }
 
-    public int getPosY() {
+    public double getPosY() {
         return posY;
     }
 
-    public void setPosY(int posY) {
+    public void setPosY(double posY) {
         this.posY = posY;
     }
 
