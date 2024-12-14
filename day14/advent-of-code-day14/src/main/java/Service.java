@@ -67,6 +67,25 @@ public class Service {
                 .reduce(1, (a, b) -> a * b);
     }
     public int partTwo() {
-        return 0;
+        int minTime = -1;
+        int minProd = Integer.MAX_VALUE;
+
+        for (Robot robot: robots) {
+            robot.reset();
+        }
+
+        for (int i = 0; i < maxX * maxY; i++) {
+            for (Robot robot: robots) {
+                robot.move(maxX, maxY);
+            }
+
+            int prod = countRobots();
+            if (prod < minProd) {
+                minProd = prod;
+                minTime = i;
+            }
+        }
+        System.out.println(minProd);
+        return minTime + 1 ;
     }
 }

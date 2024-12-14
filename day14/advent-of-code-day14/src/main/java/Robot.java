@@ -1,10 +1,16 @@
 public class Robot {
     private Cord position;
+    private Cord startPosition;
     private Cord velocity;
 
     public Robot(Cord position, Cord velocity) {
         this.position = position;
+        this.startPosition = new Cord(position.getPosX(), position.getPosY());
         this.velocity = velocity;
+    }
+
+    public void reset() {
+        this.position = new Cord(startPosition.getPosX(), startPosition.getPosY());
     }
 
     public void move(int maxX, int maxY) {
