@@ -85,7 +85,6 @@ public class Service {
                 minTime = i;
             }
         }
-        System.out.println(minProd);
         return minTime + 1 ;
     }
 }

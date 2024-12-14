@@ -2,14 +2,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class Service {
-    public final List<List<Integer>> board = new ArrayList<>();
-    public final List<Cord> starts = new ArrayList<>();
-    public int maxX = -1;
-    public int maxY = -1;
+    private final List<List<Integer>> board = new ArrayList<>();
+    private int maxX = -1;
+    private int maxY = -1;
+    private final Cord right = new Cord(1,0);
+    private final Cord down = new Cord(0,1);
+    private final Cord left = new Cord(-1,0);
+    private final Cord up = new Cord(0,-1);
+    private final List<Cord> directions = List.of(right, down, left, up);
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -28,11 +31,16 @@ public class Service {
         }
     }
     public long partOne() {
-        findStarts();
-        return 0;
+        List<Cord> starts = new ArrayList<>();
+        findStarts(starts);
+        int count = 0;
+        for (Cord start: starts) {
+            count += dfs(start);
+        }
+        return count;
     }
 
-    private void findStarts() {
+    private void findStarts(List<Cord> starts) {
         for (int i = 0; i < maxX; i++) {
             for (int j = 0; j < maxY; j++) {
                 if (board.get(i).get(j) == 0) {
@@ -40,6 +48,31 @@ public class Service {
                 }
             }
         }
+    }
+
+    private int dfs(Cord start) {
+        Set<Cord> seen = new HashSet<>();
+        Queue<Cord> queue = new ArrayDeque<>();
+        queue.add(start);
+
+        while (!queue.isEmpty()) {
+            Cord defCord = queue.poll();
+            int defValue = board.get(defCord.getPosX()).get(defCord.getPosY());
+            if (defValue == 9) {
+                seen.add(defCord);
+            }
+            for (Cord nextStep : directions) {
+                Cord nextCord = new Cord(defCord.getPosX() + nextStep.getPosX(), defCord.getPosY() + nextStep.getPosY());
+                if (!(nextCord.getPosX() < 0 || nextCord.getPosY() < 0 || nextCord.getPosX() >= maxX || nextCord.getPosY() >= maxY)) {
+                    int nextValue = board.get(nextCord.getPosX()).get(nextCord.getPosY());
+                    if (defValue + 1 == nextValue) {
+                        queue.add(nextCord);
+                    }
+                }
+            }
+        }
+
+        return seen.size();
     }
 
     public int partTwo() {
