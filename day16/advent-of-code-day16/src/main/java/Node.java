@@ -1,7 +1,7 @@
 import java.util.Objects;
 
 public class Node implements Comparable<Node>{
-    private int cost;
+    private long cost;
     private Cord position;
     private Cord direction;
 
@@ -11,13 +11,13 @@ public class Node implements Comparable<Node>{
         this.direction = direction;
     }
 
-    public Node(int cost, Cord position, Cord direction) {
+    public Node(long cost, Cord position, Cord direction) {
         this.cost = cost;
         this.position = position;
         this.direction = direction;
     }
 
-    public int getCost() {
+    public long getCost() {
         return cost;
     }
 
@@ -49,12 +49,7 @@ public class Node implements Comparable<Node>{
 
     @Override
     public int hashCode() {
-        return Objects.hash(getCost(), getPosition(), getDirection());
-    }
-
-    @Override
-    public int compareTo(Node o) {
-        return this.cost - o .getCost();
+        return Objects.hash(getCost());
     }
 
     @Override
@@ -64,5 +59,15 @@ public class Node implements Comparable<Node>{
                 ", " + position +
                 ", " + direction +
                 ']';
+    }
+
+    public Node copy() {
+        return new Node(getCost(), new Cord(getPosition().getPosX(), getPosition().getPosY()),
+                new Cord(getDirection().getPosX(), getDirection().getPosY()));
+    }
+
+    @Override
+    public int compareTo(Node o) {
+        return Long.compare(this.getCost(), o.getCost());
     }
 }

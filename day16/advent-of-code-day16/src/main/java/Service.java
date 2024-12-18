@@ -36,15 +36,16 @@ public class Service {
     public long partOne() {
         Cord start = findStart();
         Cord end = findEnd();
+        long cost = -1;
         PriorityQueue<Node> pq = new PriorityQueue<>();
-        Set<Node> seen = new TreeSet<>();
-        //seen.add(new Node(start,right));
+        List<Node> seen = new ArrayList<>();
+        seen.add(new Node(start,right));
         pq.add(new Node(0, start,right));
 
         while (!pq.isEmpty()) {
             Node defNode = pq.poll();
-            int cost = defNode.getCost();
-            seen.add(defNode);
+            cost = defNode.getCost();
+            //seen.add(defNode.copy());
             List<Node> nextNodes = List.of(new Node(cost + 1,
                             new Cord(defNode.getPosition().getPosX() + defNode.getDirection().getPosX(),
                                     defNode.getPosition().getPosY() + defNode.getDirection().getPosY()),
@@ -58,19 +59,17 @@ public class Service {
                                     defNode.getPosition().getPosY()),
                             new Cord(-defNode.getDirection().getPosY(), defNode.getDirection().getPosX())));
             if (board.get(defNode.getPosition().getPosY()).get(defNode.getPosition().getPosX()) == 'E') {
-                System.out.println(cost);
                 break;
             }
             for (Node newNode: nextNodes) {
-                if (!seen.contains(newNode)) {
-                    if (board.get(newNode.getPosition().getPosY()).get(newNode.getPosition().getPosX()) != '#') {
-                        pq.add(newNode);
-                    }
+                if (!(seen.contains(newNode) || board.get(newNode.getPosition().getPosY()).get(newNode.getPosition().getPosX()) == '#')) {
+                    pq.add(newNode.copy());
+                    seen.add(newNode.copy());
                 }
             }
         }
 
-        return 0;
+        return cost;
     }
 
     private Cord findEnd() {
