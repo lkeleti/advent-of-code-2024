@@ -9,12 +9,7 @@ public class Service {
     private int maxX = -1;
     private int maxY = -1;
 
-    private final Cord up = new Cord(0, -1);
     private final Cord right = new Cord(1, 0);
-    private final Cord down = new Cord(0, 1);
-    private final Cord left = new Cord(-1, 0);
-
-    private final List<Cord> directions = List.of(up, right, down, left);
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -38,37 +33,41 @@ public class Service {
         Cord end = findEnd();
         long cost = -1;
         PriorityQueue<Node> pq = new PriorityQueue<>();
-        List<Node> seen = new ArrayList<>();
-        seen.add(new Node(start,right));
+        List<PosDir> seen = new ArrayList<>();
+        seen.add(new PosDir(start,right));
         pq.add(new Node(0, start,right));
 
         while (!pq.isEmpty()) {
             Node defNode = pq.poll();
             cost = defNode.getCost();
-            //seen.add(defNode.copy());
-            List<Node> nextNodes = List.of(new Node(cost + 1,
-                            new Cord(defNode.getPosition().getPosX() + defNode.getDirection().getPosX(),
-                                    defNode.getPosition().getPosY() + defNode.getDirection().getPosY()),
-                            new Cord(defNode.getDirection().getPosX(), defNode.getDirection().getPosY())),
-                    new Node(cost + 1000,
-                            new Cord(defNode.getPosition().getPosX(),
-                            defNode.getPosition().getPosY()),
-                            new Cord(defNode.getDirection().getPosY(), -defNode.getDirection().getPosX())),
-                    new Node(cost + 1000,
-                            new Cord(defNode.getPosition().getPosX(),
-                                    defNode.getPosition().getPosY()),
-                            new Cord(-defNode.getDirection().getPosY(), defNode.getDirection().getPosX())));
             if (board.get(defNode.getPosition().getPosY()).get(defNode.getPosition().getPosX()) == 'E') {
                 break;
             }
-            for (Node newNode: nextNodes) {
-                if (!(seen.contains(newNode) || board.get(newNode.getPosition().getPosY()).get(newNode.getPosition().getPosX()) == '#')) {
+
+            Node goForward = new Node(cost + 1,
+                    new Cord(defNode.getPosition().getPosX() + defNode.getDirection().getPosX(),
+                            defNode.getPosition().getPosY() + defNode.getDirection().getPosY()),
+                    new Cord(defNode.getDirection().getPosX(), defNode.getDirection().getPosY()));
+            Node goLeft = new Node(cost + 1000,
+                    new Cord(defNode.getPosition().getPosX(),
+                            defNode.getPosition().getPosY()),
+                    new Cord(defNode.getDirection().getPosY(), -1 * defNode.getDirection().getPosX()));
+            Node goRight = new Node(cost + 1000,
+                    new Cord(defNode.getPosition().getPosX(),
+                            defNode.getPosition().getPosY()),
+                    new Cord(-1 * defNode.getDirection().getPosY(), defNode.getDirection().getPosX()));
+            List<Node> nextNodes = new ArrayList<>();
+            nextNodes.add(goForward);
+            nextNodes.add(goLeft);
+            nextNodes.add(goRight);
+
+            for (Node newNode : nextNodes) {
+                if (!(seen.contains(new PosDir(newNode.getPosition(), newNode.getDirection())) || board.get(newNode.getPosition().getPosY()).get(newNode.getPosition().getPosX()) == '#')) {
                     pq.add(newNode.copy());
-                    seen.add(newNode.copy());
+                    seen.add(new PosDir(newNode.getPosition(), newNode.getDirection()));
                 }
             }
         }
-
         return cost;
     }
 
