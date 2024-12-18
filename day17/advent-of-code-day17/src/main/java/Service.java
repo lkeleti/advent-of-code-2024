@@ -46,13 +46,13 @@ public class Service {
                     break;
                 case 3 : ip = jnz(operand, ip);
                     break;
-                case 4 : bxc(operand);
+                case 4 : bxc();
                     break;
                 case 5 : out(operand, output);
                     break;
-                case 6 : bdv(operand, output);
+                case 6 : bdv(operand);
                     break;
-                case 7 : cdv(operand, output);
+                case 7 : cdv(operand);
                     break;
             }
         }
@@ -60,12 +60,12 @@ public class Service {
         return 0;
     }
 
-    private void cdv(int operand, List<Integer> output) {
+    private void cdv(int operand) {
         int result =  (int)(registerA / Math.pow(2,operand));
         registerC = result;
     }
 
-    private void bdv(int operand, List<Integer> output) {
+    private void bdv(int operand) {
         int result =  (int)(registerA / Math.pow(2,operand));
         registerB = result;
     }
@@ -74,7 +74,7 @@ public class Service {
         output.add(operand % 8);
     }
 
-    private void bxc(int operand) {
+    private void bxc() {
         registerB = registerB ^ registerC;
     }
 
@@ -87,8 +87,7 @@ public class Service {
 
     private void bst(int operand) {
         int result = operand % 8;
-        String binaryResult = Integer.toBinaryString(result);
-        binaryResult = String.format("%16s", Integer.toBinaryString(result)).replace(' ', '0');
+        String binaryResult = String.format("%16s", Integer.toBinaryString(result)).replace(' ', '0');
         binaryResult = binaryResult.substring(binaryResult.length()-3);
         registerB = Integer.parseInt(binaryResult,2);
     }
@@ -98,8 +97,7 @@ public class Service {
     }
 
     private void adv(int operand) {
-        int result =  (int)(registerA / Math.pow(2,operand));
-        registerA = result;
+        registerA = (int)(registerA / Math.pow(2,operand));
     }
 
     private int getOperandValue(int operand) {
