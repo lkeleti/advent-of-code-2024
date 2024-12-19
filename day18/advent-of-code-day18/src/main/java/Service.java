@@ -2,8 +2,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -13,6 +12,12 @@ public class Service {
     private final List<Cord> bytesList = new ArrayList<>();
     private final Cord startCord = new Cord(0,0);
     private final Cord endCord = new Cord(BOARD_SIZE-1,BOARD_SIZE-1);
+    private final Cord up = new Cord(0,-1);
+    private final Cord right = new Cord(1,0);
+    private final Cord down = new Cord(0,1);
+    private final Cord left = new Cord(-1,0);
+
+    private final List<Cord> directions = List.of(up, right, down, left);
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -30,7 +35,31 @@ public class Service {
         clearMemory();
         fillMemory(1024);
         dumpMemory();
-        return 0;
+        List<Cord> seen = new ArrayList<>();
+        Queue<Node> queue = new PriorityQueue<>();
+        queue.add( new Node(0, startCord));
+
+        while (!queue.isEmpty()) {
+            Node defStep = queue.poll();
+            seen.add(defStep.getPosition());
+
+            for (Cord direction: directions) {
+                int posX = defStep.getPosition().getPosX() + direction.getPosX();
+                int posY = defStep.getPosition().getPosY() + direction.getPosY();
+                Node nextStep = new Node(defStep.getStep() + 1, new Cord(posX, posY));
+
+                if (!(posX < 0 || posY < 0 || posX > BOARD_SIZE || posY > BOARD_SIZE )) {
+                    if (nextStep.getPosition().equals(endCord) ) {
+                        return nextStep.getStep();
+                    } else {
+                        if (!seen.contains(nextStep.getPosition())) {
+                            queue.add(nextStep);
+                        }
+                    }
+                }
+            }
+        }
+        return -1;
     }
 
     private void dumpMemory() {
