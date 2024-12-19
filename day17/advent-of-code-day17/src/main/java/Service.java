@@ -31,7 +31,7 @@ public class Service {
             throw new IllegalStateException("Cannot read file: " + path, ioe);
         }
     }
-    public long partOne() {
+    public String partOne() {
         List<Integer> output = new ArrayList<>();
         for (int ip = 0; ip < program.size(); ip+=2) {
             int opcode =  program.get(ip);
@@ -56,8 +56,7 @@ public class Service {
                     break;
             }
         }
-        System.out.println(String. join(",", output.stream().map(String::valueOf).toList()));
-        return 0;
+        return String.join(",", output.stream().map(String::valueOf).toList());
     }
 
     private void cdv(int operand) {
@@ -118,6 +117,16 @@ public class Service {
     }
 
     public int partTwo() {
-        return 0;
+        for (int i = 0; i < Integer.MAX_VALUE; i++) {
+            program.clear();
+            readInput(Path.of("src/main/resources/input.txt"));
+            registerA = i;
+            String newValue = partOne();
+            String programValue = String.join(",", program.stream().map(String::valueOf).toList());
+            if (newValue.equals(programValue)) {
+                return i;
+            }
+        }
+        return -1;
     }
 }
