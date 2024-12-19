@@ -33,28 +33,33 @@ public class Service {
 
     public long partOne() {
         clearMemory();
-        fillMemory(1024);
-        dumpMemory();
-        List<Cord> seen = new ArrayList<>();
+        fillMemory(0, 1024);
+        //dumpMemory();
+        return bfs();
+    }
+
+    private Integer bfs() {
+        Set<Cord> seen = new HashSet<>();
         Queue<Node> queue = new PriorityQueue<>();
         queue.add( new Node(0, startCord));
+        seen.add(startCord);
 
         while (!queue.isEmpty()) {
             Node defStep = queue.poll();
-            seen.add(defStep.getPosition());
 
             for (Cord direction: directions) {
                 int posX = defStep.getPosition().getPosX() + direction.getPosX();
                 int posY = defStep.getPosition().getPosY() + direction.getPosY();
                 Node nextStep = new Node(defStep.getStep() + 1, new Cord(posX, posY));
 
-                if (!(posX < 0 || posY < 0 || posX > BOARD_SIZE || posY > BOARD_SIZE )) {
+                if (!(posX < 0 || posY < 0 || posX > BOARD_SIZE-1 || posY > BOARD_SIZE-1 )) {
                     if (nextStep.getPosition().equals(endCord) ) {
                         return nextStep.getStep();
                     } else {
-                        if (board.get(posY).get(posX) != '#') {
+                        if (board.get(posY).get(posX) == '.') {
                             if (!seen.contains(nextStep.getPosition())) {
                                 queue.add(nextStep);
+                                seen.add(nextStep.getPosition());
                             }
                         }
                     }
@@ -72,8 +77,8 @@ public class Service {
         }
     }
 
-    private void fillMemory(int counter) {
-        for (int i = 0; i < counter; i++) {
+    private void fillMemory(int startCounter, int endCounter) {
+        for (int i = startCounter; i < endCounter; i++) {
             int x = bytesList.get(i).getPosX();
             int y = bytesList.get(i).getPosY();
             board.get(y).set(x, '#');
@@ -90,7 +95,14 @@ public class Service {
         }
     }
 
-    public int partTwo() {
-        return -0;
+    public String partTwo() {
+        clearMemory();
+        fillMemory(0, 1024);
+        int counter = 0;
+        while (bfs() != -1) {
+            counter++;
+            fillMemory(1024 + counter, 1024 + counter + 1);
+        }
+        return bytesList.get(1024 + counter).toString();
     }
 }
