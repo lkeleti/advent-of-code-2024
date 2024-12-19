@@ -52,8 +52,10 @@ public class Service {
                     if (nextStep.getPosition().equals(endCord) ) {
                         return nextStep.getStep();
                     } else {
-                        if (!seen.contains(nextStep.getPosition())) {
-                            queue.add(nextStep);
+                        if (board.get(posY).get(posX) != '#') {
+                            if (!seen.contains(nextStep.getPosition())) {
+                                queue.add(nextStep);
+                            }
                         }
                     }
                 }
