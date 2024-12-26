@@ -87,30 +87,30 @@ public class Service {
         createDisk();
         findFreeSpace();
         defrag2();
-        System.out.println(blocks);
         return calculateCrc();
-        //6423258376982 good
-        //8587288893605 high
     }
 
     private void defrag2() {
         List<Integer> fd = fileDesc.keySet().stream().sorted((o1, o2) -> o2-o1).toList();
         for (int i = 0; i < fd.size(); i++) {
             int key =  fd.get(i);
-            if (key == 12) {
-                System.out.println("12");
-            }
+            findFreeSpace();
+
             int size = fileDesc.get(key).size();
             for (int emptyKey: emptyDesc.keySet()) {
-                if (emptyDesc.get(emptyKey) >= size) {
-                    for (int j = 0; j < size; j++) {
-                        Collections.swap(blocks, emptyKey + j, fileDesc.get(key).get(j));
+                if (emptyKey < fileDesc.get(key).getFirst()) {
+                    if (emptyDesc.get(emptyKey) >= size) {
+                        for (int j = 0; j < size; j++) {
+                            Collections.swap(blocks, emptyKey + j, fileDesc.get(key).get(j));
+                        }
+                        int space = emptyDesc.get(emptyKey);
+                        emptyDesc.remove(emptyKey);
+                        if (space - size > 0) {
+                            emptyDesc.put(emptyKey + size, space - size);
+                        }
+                        break;
                     }
-                    int space = emptyDesc.get(emptyKey);
-                    emptyDesc.remove(emptyKey);
-                    if (space - size > 0) {
-                        emptyDesc.put(emptyKey + size, space - size);
-                    }
+                } else {
                     break;
                 }
             }
