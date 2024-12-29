@@ -7,7 +7,6 @@ import java.util.*;
 public class Service {
     private final List<String> patterns = new ArrayList<>();
     private int maxLen = 0;
-    private int minLen = 0;
     private final List<String> towels = new ArrayList<>();
     private final Map<String, Boolean> cache = new HashMap<>();
     private final Map<String, Long> cache2 = new HashMap<>();
@@ -27,11 +26,8 @@ public class Service {
         }
 
         maxLen = patterns.stream()
-                .mapToInt(value -> value.length())
+                .mapToInt(String::length)
                 .max().getAsInt();
-        minLen = patterns.stream()
-                .mapToInt(value -> value.length())
-                .min().getAsInt();
     }
 
     private boolean findPattern(String word) {
@@ -82,9 +78,8 @@ public class Service {
 
         for (int i = 0; i < Math.min(word.length(), maxLen) + 1; i++) {
             if (patterns.contains(word.substring(0,i))) {
-                counter += findPossabilities(word.substring(i));
                 cache2.put(word,counter);
-                return counter;
+                counter += findPossabilities(word.substring(i));
             }
         }
         cache2.put(word,counter);
