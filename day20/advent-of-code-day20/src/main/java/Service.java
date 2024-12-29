@@ -115,8 +115,6 @@ public class Service {
     public int partTwo() {
         List<List<Integer>> distances = findDistances();
         return countShorterWays2(distances);
-        //978910 low
-        //1110241 high
     }
     private int countShorterWays2(List<List<Integer>> distances) {
         int counter = 0;
@@ -126,8 +124,13 @@ public class Service {
                     for (int radius = 2; radius < 21; radius++) {
                         for (int dr = 0; dr < radius + 1; dr++) {
                             int dc = radius - dr;
+                            Set<Cord> possibleCords = new HashSet<>();
+                            possibleCords.add(new Cord(x + dr, y + dc));
+                            possibleCords.add(new Cord(x + dr, y - dc));
+                            possibleCords.add(new Cord(x - dr, y + dc));
+                            possibleCords.add(new Cord(x - dr, y - dc));
 
-                            for (Cord defCord : List.of(new Cord(x + dr, y + dc), new Cord(x + dr, y - dc), new Cord(x - dr, y + dc), new Cord(x - dr, y - dc))) {
+                            for (Cord defCord : possibleCords) {
                                 int defPosX = defCord.getPosX();
                                 int defPosY = defCord.getPosY();
                                 if (!(defPosX < 0 || defPosY < 0 || defPosX >= maxX || defPosY >= maxY)) {
