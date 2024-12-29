@@ -48,6 +48,62 @@ public class Service {
     }
 
     public int partTwo() {
-        return 0;
+        List<List<Integer>> prices = getPrices();
+        List<String> differences = getDifferences(prices);
+        String[] patterns = differences.getFirst().split(",");
+
+        int maxBananas = -1;
+        for(int i = 0; i < patterns.length-4; i+=4){
+            String pattern = "";
+            Integer bananas = 0;
+            pattern += patterns[i];
+            pattern += patterns[i+1];
+            pattern += patterns[i+2];
+            pattern += patterns[i+3];
+
+            if (pattern.startsWith("-21")) {
+                System.out.println("pattern");
+            }
+
+            bananas += prices.getFirst().get(i + 4);
+            for (int j = 1; j < differences.size(); j++) {
+                int position = differences.get(j).indexOf(pattern);
+                if (position != -1) {
+                    bananas += prices.get(j).get(position  + 4);
+                }
+            }
+            if (bananas > maxBananas) {
+                maxBananas = bananas;
+            }
+        }
+        return maxBananas;
+    }
+
+    private List<String> getDifferences(List<List<Integer>> prices) {
+        List<String> differences = new ArrayList<>();
+        for (List<Integer> price : prices) {
+            StringBuilder dif = new StringBuilder();
+            for (int i= 0; i < price.size()-1; i++) {
+                dif.append(price.get(i+1) - price.get(i));
+                dif.append(",");
+            }
+            differences.add(dif.toString());
+        }
+        return differences;
+    }
+
+
+    private List<List<Integer>> getPrices() {
+        List<List<Integer>> prices = new ArrayList<>();
+        for (Long secretNumber: secretNumbers) {
+            List<Integer> price = new ArrayList<>();
+            price.add((int) (secretNumber % 10));
+            for (int i = 0; i < 2000; i++) {
+                secretNumber = calculateSecretNumber(secretNumber);
+                price.add((int) (secretNumber % 10));
+            }
+            prices.add(price);
+        }
+        return prices;
     }
 }
