@@ -4,6 +4,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Service {
     List<Long> secretNumbers = new ArrayList<>();
@@ -49,27 +50,28 @@ public class Service {
 
     public int partTwo() {
         List<List<Integer>> prices = getPrices();
-        List<String> differences = getDifferences(prices);
-        String[] patterns = differences.getFirst().split(",");
+        List<List<Integer>> differences = getDifferences(prices);
+        List<Integer> patterns = differences.getFirst();
 
         int maxBananas = -1;
-        for(int i = 0; i < patterns.length-4; i+=4){
-            String pattern = "";
+        for(int i = 0; i < patterns.size()-4; i+=4){
+            List<Integer> pattern = new ArrayList<>();
             Integer bananas = 0;
-            pattern += patterns[i];
-            pattern += patterns[i+1];
-            pattern += patterns[i+2];
-            pattern += patterns[i+3];
-
-            if (pattern.startsWith("-21")) {
-                System.out.println("pattern");
-            }
+            pattern.add(patterns.get(i));
+            pattern.add(patterns.get(i+1));
+            pattern.add(patterns.get(i+2));
+            pattern.add(patterns.get(i+3));
 
             bananas += prices.getFirst().get(i + 4);
             for (int j = 1; j < differences.size(); j++) {
-                int position = differences.get(j).indexOf(pattern);
-                if (position != -1) {
-                    bananas += prices.get(j).get(position  + 4);
+                for (int k = 0; k < differences.get(j).size() - 5; k++) {
+                    if ((differences.get(j).get(k) == pattern.get(0)) &&
+                            (differences.get(j).get(k + 1) == pattern.get(1)) &&
+                            (differences.get(j).get(k + 2) == pattern.get(2)) &&
+                            (differences.get(j).get(k + 3) == pattern.get(3))) {
+                        bananas += prices.get(j).get(k + 4);
+                        break;
+                    }
                 }
             }
             if (bananas > maxBananas) {
@@ -79,17 +81,17 @@ public class Service {
         return maxBananas;
     }
 
-    private List<String> getDifferences(List<List<Integer>> prices) {
-        List<String> differences = new ArrayList<>();
+    private List<List<Integer>> getDifferences(List<List<Integer>> prices) {
+        List<List<Integer>> differences = new ArrayList<>();
         for (List<Integer> price : prices) {
-            StringBuilder dif = new StringBuilder();
+            List<Integer> dif = new ArrayList<>();
             for (int i= 0; i < price.size()-1; i++) {
-                dif.append(price.get(i+1) - price.get(i));
-                dif.append(",");
+                dif.add(price.get(i+1) - price.get(i));
             }
-            differences.add(dif.toString());
+            differences.add(dif);
         }
         return differences;
+        //1793 low
     }
 
 
