@@ -8,19 +8,11 @@ public class Service {
     private final List<String> unlockCodes = new ArrayList<>();
     private final List<List<Character>> numericKeypad = new ArrayList<>();
     private final List<List<Character>> directionalKeypad = new ArrayList<>();
-    private final Cord numericStartPos = new Cord(2,3);
-    private final Cord directionalStartPos = new Cord(2,0);
     private final Node up = new Node(List.of('^'), new Cord(0,-1));
     private final Node right = new Node(List.of('>'), new Cord(1,0));
     private final Node down = new Node(List.of('V'), new Cord(0,1));
     private final Node left = new Node(List.of('<'), new Cord(-1,0));
     private final List<Node> directions = List.of(right, down, up, left );
-
-    private final int numericMaxX = 3;
-    private final int numericMaxY = 4;
-
-    private final int directionalMaxX = 3;
-    private final int directionalMaxY = 2;
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -45,101 +37,70 @@ public class Service {
     }
 
     public long partOne() {
-        List<String> numericMoves = new ArrayList<>();
-        List<String> directionalMoves1 = new ArrayList<>();
-        List<String> directionalMoves2 = new ArrayList<>();
-        simulateNumpad(numericMoves);
-        System.out.println(numericMoves.get(0));
-
-        simulateDirectionpad(numericMoves, directionalMoves1);
-        System.out.println(directionalMoves1.get(0));
-
-        simulateDirectionpad(directionalMoves1, directionalMoves2);
-        System.out.println(directionalMoves2.get(0).length());
-        System.out.println(directionalMoves2.get(1).length());
-        System.out.println(directionalMoves2.get(2).length());
-        System.out.println(directionalMoves2.get(3).length());
-        System.out.println(directionalMoves2.get(4).length());
+        for (String code: unlockCodes) {
+            List<List<String>> allPaths = new ArrayList<>();
+            simulateNumpad(code, allPaths);
+            List<String> numpadCombinations = combineAllPaths(allPaths);
+            System.out.println();
+        }
         return 0;
     }
 
-    private void simulateDirectionpad(List<String> numericMoves, List<String> directionalMoves1) {
-        for (String code: numericMoves) {
-            List<Character> moves = new ArrayList<>();
-            moves.addAll(bfs(directionalKeypad, 'A', code.toCharArray()[0]).getFirst().getDirection());
-            moves.add('A');
-            for (int i = 0; i < code.length()-1; i++ ) {
-                moves.addAll(bfs(directionalKeypad, code.toCharArray()[i], code.toCharArray()[i+1]).getFirst().getDirection());
-                moves.add('A');
-            }
-            directionalMoves1.add(moves.toString().replace(", ","").replace("[","").replace("]",""));
+    private void simulateNumpad(String code, List<List<String>> allPaths) {
+        char startValue = 'A';
+        for (int i = 0; i < code.length(); i++ ) {
+            char endValue = code.charAt(i);
+            List<String> paths = findAllPaths(numericKeypad, startValue, endValue);
+            int minMoves = paths.stream().mapToInt(String::length).min().orElse(-1);
+            allPaths.add(paths.stream().filter(s -> s.length() == minMoves).toList());
+            startValue = endValue;
         }
     }
 
-    private void simulateNumpad(List<String> numericMoves) {
-        for (String code: unlockCodes) {
-            List<Character> moves = new ArrayList<>();
-            moves.addAll(bfs(numericKeypad, 'A', code.toCharArray()[0]).getFirst().getDirection());
-            moves.add('A');
-            for (int i = 0; i < code.length()-1; i++ ) {
-                moves.addAll(bfs(numericKeypad, code.toCharArray()[i], code.toCharArray()[i+1]).getFirst().getDirection());
-                moves.add('A');
-            }
-            numericMoves.add(moves.toString().replace(", ","").replace("[","").replace("]",""));
-        }
+    private List<String> combineAllPaths(List<List<String>> allPaths) {
+        List<String> combinations = new ArrayList<>(); 
+        combineRecursive(allPaths, 0, "", combinations); 
+        return combinations;
     }
 
-    private List<Node> bfs(List<List<Character>> board, Character startValue, Character endValue) {
-        List<Node> result = new ArrayList<>();
-        int maxPosX = board.getFirst().size() - 1;
-        int maxPosY = board.size() - 1;
-        int shortest = -1;
-        Cord startPos = findValue(startValue, board);
-        Queue<Node> queue = new ArrayDeque<>();
-        Set<Cord> seen = new HashSet<>();
+    private void combineRecursive(List<List<String>> allPaths, int depth, String current, List<String> combinations) {
+        if (depth == allPaths.size()) { combinations.add(current); return; } for (String path : allPaths.get(depth)) { combineRecursive(allPaths, depth + 1, current + path, combinations); }
+    }
 
-        if (board.get(startPos.getPosY()).get(startPos.getPosX()).equals(endValue)) {
-            result.add(new Node(new ArrayList<>(),new Cord(-1,-1)));
-            return result;
+    private List<String> findAllPaths(List<List<Character>> keypad, char startValue, char endValue) {
+        List<String> paths = new ArrayList<>();
+        Cord startPos = findValue(startValue, keypad);
+        Set<Cord> newHashSet = new HashSet<>();
+        newHashSet.add(startPos);
+        findPaths(keypad, startValue, endValue, "", paths, newHashSet);
+        return paths;
+    }
+
+    private void findPaths(List<List<Character>> keypad, char startValue, char endValue, String path, List<String> paths, Set<Cord> seen) {
+        int maxPosX = keypad.getFirst().size() - 1;
+        int maxPosY = keypad.size() - 1;
+        Cord startPos = findValue(startValue, keypad);
+
+        if (startValue == endValue) {
+            paths.add(path);
+            return;
         }
 
-        queue.add(new Node(new ArrayList<>(),startPos));
-        seen.add(startPos);
+        for (Node direction: directions) {
+            int nextPosX = startPos.getPosX() + direction.getPosition().getPosX();
+            int nextPosY = startPos.getPosY() + direction.getPosition().getPosY();
 
-        while (!queue.isEmpty()){
-            Node currentNode = queue.poll();
-            int currentPosX = currentNode.getPosition().getPosX();
-            int currentPosY = currentNode.getPosition().getPosY();
-
-            for (Node direction: directions) {
-                int nextPosX = currentPosX + direction.getPosition().getPosX();
-                int nextPosY = currentPosY + direction.getPosition().getPosY();
-
-                if (!(nextPosX < 0 || nextPosY < 0 || nextPosX > maxPosX || nextPosY > maxPosY)) {
-                    Cord newCord = new Cord(nextPosX, nextPosY);
-                    Node newNode = new Node(currentNode.copyDirections(), newCord);
-                    newNode.getDirection().add(direction.getDirection().getFirst());
-
-                    if (board.get(nextPosY).get(nextPosX).equals(endValue)) {
-                        if (shortest == -1) {
-                            shortest = newNode.getDirection().size();
-                        } else if (newNode.getDirection().size() > shortest) {
-                            continue;
-                        }
-                        result.add(newNode);
-                        continue;
-                    }
-                    if (board.get(nextPosY).get(nextPosX) != '#') {
-                        if (!seen.contains(newCord)) {
-                            queue.add(newNode);
-                            seen.add(newCord);
-                        }
+            if (!(nextPosX < 0 || nextPosY < 0 || nextPosX > maxPosX || nextPosY > maxPosY)) {
+                startValue = keypad.get(nextPosY).get(nextPosX);
+                if (startValue != '#') {
+                    Cord nextPos = new Cord(nextPosX, nextPosY);
+                    if (!seen.contains(nextPos)) {
+                        seen.add(nextPos);
+                        findPaths(keypad, startValue, endValue, path + direction.getDirection().getFirst(), paths, new HashSet<>(seen));
                     }
                 }
-
             }
         }
-        return result;
     }
 
     private Cord findValue(Character valueToFind, List<List<Character>> board) {
