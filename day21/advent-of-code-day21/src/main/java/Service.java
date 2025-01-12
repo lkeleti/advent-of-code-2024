@@ -69,31 +69,6 @@ public class Service {
         return minValue;
     }
 
-    public long partOne1() {
-        long result = 0;
-        for (String code: unlockCodes) {
-            List<List<String>> allNumPaths = new ArrayList<>();
-            simulateKeypad(numericKeypad, code, allNumPaths);
-            List<String> numpadCombinations = combineAllPaths(allNumPaths);
-            int minValue = Integer.MAX_VALUE;
-            for (String move1: numpadCombinations) {
-                List<List<String>> allKeyPaths1 = new ArrayList<>();
-                simulateKeypad(directionalKeypad, move1, allKeyPaths1);
-                List<String> keypadCombinations1 = combineAllPaths(allKeyPaths1);
-                for (String move2: keypadCombinations1) {
-                    List<List<String>> allKeyPaths2 = new ArrayList<>();
-                    simulateKeypad(directionalKeypad, move2, allKeyPaths2);
-                    List<String> keypadCombinations2 = combineAllPaths(allKeyPaths2);
-                    int defValue = keypadCombinations2.getFirst().length() * Integer.parseInt(code.replace("A",""));
-                    if (defValue < minValue) {
-                        minValue = defValue;
-                    }
-                }
-            }
-            result += minValue;
-        }
-        return result;
-    }
 
     private void simulateKeypad(List<List<Character>> keypad, String code, List<List<String>> allPaths) {
         char startValue = 'A';
@@ -107,8 +82,8 @@ public class Service {
     }
 
     private List<String> combineAllPaths(List<List<String>> allPaths) {
-        List<String> combinations = new ArrayList<>(); 
-        combineRecursive(allPaths, 0, "", combinations); 
+        List<String> combinations = new ArrayList<>();
+        combineRecursive(allPaths, 0, "", combinations);
         return combinations;
     }
 
