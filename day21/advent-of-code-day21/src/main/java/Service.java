@@ -37,20 +37,36 @@ public class Service {
     }
 
     public long partOne() {
+        long result = 0;
         for (String code: unlockCodes) {
-            List<List<String>> allPaths = new ArrayList<>();
-            simulateNumpad(code, allPaths);
-            List<String> numpadCombinations = combineAllPaths(allPaths);
-            System.out.println();
+            List<List<String>> allNumPaths = new ArrayList<>();
+            simulateKeypad(numericKeypad, code, allNumPaths);
+            List<String> numpadCombinations = combineAllPaths(allNumPaths);
+            int minValue = Integer.MAX_VALUE;
+            for (String move1: numpadCombinations) {
+                List<List<String>> allKeyPaths1 = new ArrayList<>();
+                simulateKeypad(directionalKeypad, move1, allKeyPaths1);
+                List<String> keypadCombinations1 = combineAllPaths(allKeyPaths1);
+                for (String move2: keypadCombinations1) {
+                    List<List<String>> allKeyPaths2 = new ArrayList<>();
+                    simulateKeypad(directionalKeypad, move2, allKeyPaths2);
+                    List<String> keypadCombinations2 = combineAllPaths(allKeyPaths2);
+                    int defValue = keypadCombinations2.getFirst().length() * Integer.parseInt(code.replace("A",""));
+                    if (defValue < minValue) {
+                        minValue = defValue;
+                    }
+                }
+            }
+            result += minValue;
         }
-        return 0;
+        return result;
     }
 
-    private void simulateNumpad(String code, List<List<String>> allPaths) {
+    private void simulateKeypad(List<List<Character>> keypad, String code, List<List<String>> allPaths) {
         char startValue = 'A';
         for (int i = 0; i < code.length(); i++ ) {
             char endValue = code.charAt(i);
-            List<String> paths = findAllPaths(numericKeypad, startValue, endValue);
+            List<String> paths = findAllPaths(keypad, startValue, endValue);
             int minMoves = paths.stream().mapToInt(String::length).min().orElse(-1);
             allPaths.add(paths.stream().filter(s -> s.length() == minMoves).toList());
             startValue = endValue;
@@ -82,7 +98,7 @@ public class Service {
         Cord startPos = findValue(startValue, keypad);
 
         if (startValue == endValue) {
-            paths.add(path);
+            paths.add(path +'A');
             return;
         }
 
