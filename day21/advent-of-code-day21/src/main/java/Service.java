@@ -38,6 +38,39 @@ public class Service {
 
     public long partOne() {
         long result = 0;
+        int depth = 3;
+        for (String code : unlockCodes) {
+            List<List<String>> allNumPaths = new ArrayList<>();
+            simulateKeypad(numericKeypad, code, allNumPaths);
+            List<String> numpadCombinations = combineAllPaths(allNumPaths);
+            int minValue = Integer.MAX_VALUE;
+            for (String move1 : numpadCombinations) {
+                minValue = Math.min(minValue, recursiveHelper(move1, depth - 1, directionalKeypad, Integer.parseInt(code.replace("A", ""))));
+            }
+            result += minValue;
+        }
+        return result;
+    }
+
+    public int recursiveHelper(String move, int depth, List<List<Character>> keypad, int initialValue) {
+        if (depth == 0) {
+            return move.length() * initialValue;
+        }
+
+        List<List<String>> allKeyPaths = new ArrayList<>();
+        simulateKeypad(keypad, move, allKeyPaths);
+        List<String> keypadCombinations = combineAllPaths(allKeyPaths);
+        int minValue = Integer.MAX_VALUE;
+
+        for (String nextMove : keypadCombinations) {
+            minValue = Math.min(minValue, recursiveHelper(nextMove, depth - 1, keypad, initialValue));
+        }
+
+        return minValue;
+    }
+
+    public long partOne1() {
+        long result = 0;
         for (String code: unlockCodes) {
             List<List<String>> allNumPaths = new ArrayList<>();
             simulateKeypad(numericKeypad, code, allNumPaths);
@@ -132,7 +165,19 @@ public class Service {
         return new Cord(-1,-1);
     }
 
-    public int partTwo() {
-        return 0;
+    public long partTwo() {
+        long result = 0;
+        int depth = 26;
+        for (String code : unlockCodes) {
+            List<List<String>> allNumPaths = new ArrayList<>();
+            simulateKeypad(numericKeypad, code, allNumPaths);
+            List<String> numpadCombinations = combineAllPaths(allNumPaths);
+            int minValue = Integer.MAX_VALUE;
+            for (String move1 : numpadCombinations) {
+                minValue = Math.min(minValue, recursiveHelper(move1, depth - 1, directionalKeypad, Integer.parseInt(code.replace("A", ""))));
+            }
+            result += minValue;
+        }
+        return result;
     }
 }
