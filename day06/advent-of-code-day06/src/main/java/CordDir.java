@@ -27,9 +27,8 @@ public class CordDir {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
         if (!(o instanceof CordDir cordDir)) return false;
-        return this.cord.getPosX() == cordDir.cord.getPosX() && this.cord.getPosY() == cordDir.cord.getPosY() && this.direction == cordDir.direction;
+        return Objects.equals(getCord(), cordDir.getCord()) && getDirection() == cordDir.getDirection();
     }
 
     @Override

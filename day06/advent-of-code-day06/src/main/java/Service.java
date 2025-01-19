@@ -3,12 +3,15 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class Service {
     public final List<List<Character>> board = new ArrayList<>();
     public final Cord startCord = new Cord(-1,-1);
     public final Cord maxCord = new Cord(-1,-1);
+    public final Set<Cord> path = new HashSet<>();
 
     public void readInput(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path)) {
@@ -75,13 +78,13 @@ public class Service {
                     nextY >= maxCord.getPosY())) {
                 if (board.get(nextY).get(nextX) == '#') {
                     defDirection = defDirection.getNextDirection(defDirection);
-                    nextX = defX + defDirection.getDirectionValue().getPosX();
-                    nextY = defY + defDirection.getDirectionValue().getPosY();
+                    nextX = defX;
+                    nextY = defY;
                 }
-            }
-            CordDir nextCordDir = new CordDir(new Cord(nextX, nextY), defDirection);
-            if (visited.contains(nextCordDir)) {
-                return true;
+                CordDir nextCordDir = new CordDir(new Cord(nextX, nextY), defDirection);
+                if (visited.contains(nextCordDir)) {
+                    return true;
+                }
             }
             defX = nextX;
             defY = nextY;
@@ -96,33 +99,27 @@ public class Service {
             for (int j = 0; j < maxCord.getPosY(); j++) {
                 if (board.get(j).get(i) == 'X') {
                     counter++;
+                    path.add(new Cord(i,j));
                 }
                 row += board.get(i).get(j);
             }
-            System.out.println(row);
             row = "";
         }
         return counter;
     }
 
     public int partTwo() {
+
         int counter = 0;
-        for (int i = 0; i < maxCord.getPosX(); i++) {
-            for (int j = 0; j < maxCord.getPosY(); j++) {
-                List<List<Character>> tmpBoard = copYBoard();
-                if (tmpBoard.get(j).get(i) != '#' && !(j == startCord.getPosY() && i == startCord.getPosX())) {
-                    char tmp = tmpBoard.get(j).get(i);
-                    tmpBoard.get(j).set(i, '#');
-                    if (soldPOne(tmpBoard)) {
-                        counter++;
-                        //System.out.println(i+" " +j);
-                    }
-                    tmpBoard.get(j).set(i, tmp);
-                }
+        for (Cord defCord : path) {
+            List<List<Character>> tmpBoard = copYBoard();
+            char tmp = tmpBoard.get(defCord.getPosY()).get(defCord.getPosX());
+            tmpBoard.get(defCord.getPosY()).set(defCord.getPosX(), '#');
+            if (soldPOne(tmpBoard)) {
+                counter++;
             }
+            tmpBoard.get(defCord.getPosY()).set(defCord.getPosX(), tmp);
         }
         return counter;
-        //1626 low
-        //7454 high
     }
 }
